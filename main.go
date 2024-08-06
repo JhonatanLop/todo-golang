@@ -6,7 +6,8 @@ import (
 
 func main() {
 	// criando um Usuário
-	newUser := CreateUser("Jhow", "jhow@email.com", "senha123")
+	newUser := CreateUser(1, "Jhow", "jhow@email.com", "senha123")
+	ListUser = append(ListUser, newUser)
 
 	// criando uma task
 	newTask := CreateTask(1, "Title", "Description", newUser, time.Now(), time.Now(), time.Now(), 10, "red")
@@ -17,13 +18,24 @@ func main() {
 	ListTask = append(ListTask, otherTask)
 	ListTask = append(ListTask, anotherTask)
 
-	ShowTask()
+	// ShowTask()
 
-	otherUser := CreateUser("Sebastian", "sebastian@email.com", "senha123")
+	otherUser := CreateUser(2, "Sebastian", "sebastian@email.com", "senha123")
+	ListUser = append(ListUser, otherUser)
+
 	newAnotherTask := CreateTask(1, "Another title", "My description", otherUser, time.Now(), time.Now(), time.Now(), 10, "red")
 	UpdateTask(newAnotherTask)
 
-	println("\n----\n")
+	// println("\n----\n")
 
-	ShowTask()
+	// ShowTask()
+
+	anotherUser := CreateUser(3, "Kleiton", "kleiton@email.com", "senha123")
+	ListUser = append(ListUser, anotherUser)
+
+	ShowUsers()
+	println("\n----\n")
+	newAnotherUser := CreateUser(3, "Teseu", "teseu@email.com", "senha123")
+	UpdateUser(newAnotherUser)
+	ShowUsers()
 }
