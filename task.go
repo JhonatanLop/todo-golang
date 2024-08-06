@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+var ListTask []Task
+
 type Task struct {
 	Index         int
 	Title         string
@@ -37,5 +39,21 @@ func CreateTask(
 		CompletedDate: completedDate,
 		Difficulty:    difficulty,
 		Color:         color,
+	}
+}
+
+func UpdateTask(task Task) {
+	for i := range ListTask {
+		if ListTask[i].Index == task.Index {
+			ListTask[i] = task
+		}
+	}
+}
+
+func DeleteTask(id int) {
+	for i := range ListTask {
+		if ListTask[i].Index == id {
+			ListTask = append(ListTask[:i], ListTask[i+1:]...)
+		}
 	}
 }
