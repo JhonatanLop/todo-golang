@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -39,6 +40,12 @@ func CreateTask(
 		CompletedDate: completedDate,
 		Difficulty:    difficulty,
 		Color:         color,
+	}
+}
+
+func ShowTask() {
+	for i := range ListTask {
+		fmt.Println(ListTask[i])
 	}
 }
 
