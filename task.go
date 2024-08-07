@@ -8,7 +8,7 @@ import (
 var ListTask []Task
 
 type Task struct {
-	Index         int
+	Id            int
 	Title         string
 	Description   string
 	User          User
@@ -20,7 +20,7 @@ type Task struct {
 }
 
 func CreateTask(
-	index int,
+	id int,
 	title string,
 	description string,
 	user User,
@@ -31,7 +31,7 @@ func CreateTask(
 	color string,
 ) Task {
 	return Task{
-		Index:         index,
+		Id:            id,
 		Title:         title,
 		Description:   description,
 		User:          user,
@@ -51,7 +51,7 @@ func ShowTask() {
 
 func UpdateTask(task Task) {
 	for i := range ListTask {
-		if ListTask[i].Index == task.Index {
+		if ListTask[i].Id == task.Id {
 			ListTask[i] = task
 		}
 	}
@@ -59,7 +59,7 @@ func UpdateTask(task Task) {
 
 func DeleteTask(id int) {
 	for i := range ListTask {
-		if ListTask[i].Index == id {
+		if ListTask[i].Id == id {
 			ListTask = append(ListTask[:i], ListTask[i+1:]...)
 		}
 	}
