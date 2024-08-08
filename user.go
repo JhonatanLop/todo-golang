@@ -86,11 +86,25 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var newUser User
-	json.NewDecoder(r.Body).Decode(&newUser)
+	// validação de requisição
+	if err := json.NewDecoder(r.Body).Decode(&newUser); err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
 
-	for _, user := range ListUser {
-		if user.Id == newUser.Id {
-			user = newUser
+	// adicionando o novo usuário à lista
+	for i := range ListUser {
+		if ListUser[i].Id == newUser.Id {
+			ListUser[i] = newUser
+			break
 		}
+	}
+
+	// se usuário não existe, adiciona na lista
+	ListUser = append(ListUser, newUser)
+
+	if err := json.NewEncoder(w).Encode(newUser); err != nil {
+		http.Error(w, "Failed to encode user", http.StatusInternalServerError)
+		return
 	}
 }
