@@ -47,17 +47,36 @@ func UpdateUser(user User) {
 	}
 }
 
+// http handler
+
+func UserHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	switch r.Method {
+	case "GET":
+		if len(r.URL.Query()) == 0 {
+			getAllUsers(w, r)
+		} else {
+			getUser(w, r)
+		}
+	case "POST":
+		postUser(w, r)
+	case "PUT":
+		putUser(w, r)
+	case "DELETE":
+		deleteUser(w, r)
+	}
+}
+
 // http methods
 
-func GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(ListUser); err != nil {
 		http.Error(w, "Filed to encode users", http.StatusInternalServerError)
 	}
 }
 
-func GetUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func getUser(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
 		http.Error(w, "Missing user ID", http.StatusBadRequest)
@@ -82,7 +101,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "User not found", http.StatusNotFound)
 }
 
-func PutUser(w http.ResponseWriter, r *http.Request) {
+func putUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var newUser User
@@ -105,6 +124,29 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewEncoder(w).Encode(newUser); err != nil {
 		http.Error(w, "Failed to encode user", http.StatusInternalServerError)
+		fmt.Println(err)
 		return
+	}
+}
+
+func postUser(w http.ResponseWriter, r *http.Request) {
+	var newUser User
+	if err := json.NewDecoder(r.Body).Decode(&newUser); err != nil {
+		http.Error(w, "Failed to encode user", http.StatusBadRequest)
+		fmt.Println(err)
+	}
+	fmt.Println(newUser)
+}
+
+func deleteUser(w http.ResponseWriter, r *http.Request) {
+	idTg, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil {
+		http.Error(w, "Filed to identify user", http.StatusBadRequest)
+		fmt.Println(err)
+	}
+	for i, user := range ListUser {
+		if user.Id == idTg {
+			ListUser = append(ListUser[:i], ListUser[:i+1]...)
+		}
 	}
 }

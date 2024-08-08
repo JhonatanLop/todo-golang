@@ -5,7 +5,6 @@ import (
 )
 
 func StartServer() {
-	http.HandleFunc("/users", GetAllUsers)
-	http.HandleFunc("/user", GetUser)
+	http.HandleFunc("/user", UserHandler)
 	http.ListenAndServe(":8080", nil)
 }

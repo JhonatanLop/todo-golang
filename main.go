@@ -29,6 +29,7 @@ func main() {
 
 	newAnotherUser := CreateUser(3, "Teseu", "teseu@email.com", "senha123")
 	UpdateUser(newAnotherUser)
+	ListUser = append(ListUser, anotherUser)
 
 	StartServer()
 }
