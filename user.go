@@ -1,6 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strconv"
+)
 
 var ListUser []User
 
@@ -38,6 +43,54 @@ func UpdateUser(user User) {
 	for i := range ListUser {
 		if ListUser[i].Id == user.Id {
 			ListUser[i] = user
+		}
+	}
+}
+
+// http methods
+
+func GetAllUsers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(ListUser); err != nil {
+		http.Error(w, "Filed to encode users", http.StatusInternalServerError)
+	}
+}
+
+func GetUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "Missing user ID", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	for _, user := range ListUser {
+		if user.Id == id {
+			if err := json.NewEncoder(w).Encode(user); err != nil {
+				http.Error(w, "Failed to encode user", http.StatusInternalServerError)
+			}
+			return
+		}
+	}
+
+	http.Error(w, "User not found", http.StatusNotFound)
+}
+
+func PutUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var newUser User
+	json.NewDecoder(r.Body).Decode(&newUser)
+
+	for _, user := range ListUser {
+		if user.Id == newUser.Id {
+			user = newUser
 		}
 	}
 }
