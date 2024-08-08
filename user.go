@@ -65,6 +65,8 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		putUser(w, r)
 	case "DELETE":
 		deleteUser(w, r)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
