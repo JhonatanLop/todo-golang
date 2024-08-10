@@ -71,6 +71,9 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // http methods
+// TODO
+// 1. add find user by email
+// 2. improve server error handling
 
 func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(ListUser); err != nil {
@@ -137,7 +140,9 @@ func postUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to encode user", http.StatusBadRequest)
 		fmt.Println(err)
 	}
-	fmt.Println(newUser)
+	ListUser = append(ListUser, newUser)
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("User added successfully"))
 }
 
 func deleteUser(w http.ResponseWriter, r *http.Request) {
