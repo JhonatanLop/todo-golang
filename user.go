@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -75,35 +76,38 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 // 1. add find user by email
 // 2. improve server error handling
 
-func getAllUsers(w http.ResponseWriter, r *http.Request) {
+func getAllUsers(w http.ResponseWriter, r *http.Request) ([]User, error) {
 	if err := json.NewEncoder(w).Encode(ListUser); err != nil {
 		http.Error(w, "Filed to encode users", http.StatusInternalServerError)
+		return []User{}, errors.New(err.Error())
 	}
+	return ListUser, nil
 }
 
-func getUser(w http.ResponseWriter, r *http.Request) {
+func getUser(w http.ResponseWriter, r *http.Request) (User, error) {
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
 		http.Error(w, "Missing user ID", http.StatusBadRequest)
-		return
+		return User{}, errors.New("Missing user ID")
 	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid user ID", http.StatusBadRequest)
-		return
+		return User{}, errors.New(err.Error())
 	}
 
 	for _, user := range ListUser {
 		if user.Id == id {
 			if err := json.NewEncoder(w).Encode(user); err != nil {
 				http.Error(w, "Failed to encode user", http.StatusInternalServerError)
+				return User{}, errors.New(err.Error())
 			}
-			return
+			return user, nil
 		}
 	}
-
 	http.Error(w, "User not found", http.StatusNotFound)
+	return User{}, errors.New("User not found")
 }
 
 func putUser(w http.ResponseWriter, r *http.Request) {
