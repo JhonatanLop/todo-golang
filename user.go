@@ -49,32 +49,57 @@ func UpdateUser(user User) {
 }
 
 // http handler
-
 func UserHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
 	switch r.Method {
 	case "GET":
-		if len(r.URL.Query()) == 0 {
-			getAllUsers(w, r)
-		} else {
-			getUser(w, r)
+		if err := handleGetRequest(w, r); err != nil {
+			errors.New(err.Error())
 		}
 	case "POST":
-		postUser(w, r)
+		if err := postUser(w, r); err != nil {
+			errors.New(err.Error())
+		}
 	case "PUT":
-		putUser(w, r)
+		if err := putUser(w, r); err != nil {
+			errors.New(err.Error())
+		}
 	case "DELETE":
-		deleteUser(w, r)
+		if err := deleteUser(w, r); err != nil {
+			errors.New(err.Error())
+		}
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
-// http methods
-// TODO
-// 1. add find user by email
-// 2. improve server error handling
+func handleGetRequest(w http.ResponseWriter, r *http.Request) error {
+	params := r.URL.Query()
+	if params.Has("id") {
+		user, err := getUser(w, r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return err
+		}
+		if err := json.NewEncoder(w).Encode(user); err != nil {
+			http.Error(w, "Invalid parameter", http.StatusBadRequest)
+			return err
+		}
+	} else if params.Has("email") {
+		user, err := getUserByEmail(w, r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return err
+		}
+		if err := json.NewEncoder(w).Encode(user); err != nil {
+			http.Error(w, "Invalid parameter", http.StatusBadRequest)
+			return err
+		}
+	} else {
+		getAllUsers(w, r)
+	}
+	return nil
+}
 
 func getAllUsers(w http.ResponseWriter, r *http.Request) ([]User, error) {
 	if err := json.NewEncoder(w).Encode(ListUser); err != nil {
@@ -86,22 +111,31 @@ func getAllUsers(w http.ResponseWriter, r *http.Request) ([]User, error) {
 
 func getUser(w http.ResponseWriter, r *http.Request) (User, error) {
 	idStr := r.URL.Query().Get("id")
-	if idStr == "" {
-		http.Error(w, "Missing user ID", http.StatusBadRequest)
-		return User{}, errors.New("Missing user ID")
-	}
 
+	//
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
-		return User{}, errors.New(err.Error())
+		return User{}, err
 	}
 
 	for _, user := range ListUser {
 		if user.Id == id {
 			if err := json.NewEncoder(w).Encode(user); err != nil {
+				return User{}, err
+			}
+			return user, nil
+		}
+	}
+	return User{}, errors.New("User not found")
+}
+
+func getUserByEmail(w http.ResponseWriter, r *http.Request) (User, error) {
+	emailTarget := r.URL.Query().Get("email")
+	for _, user := range ListUser {
+		if user.Email == emailTarget {
+			if err := json.NewEncoder(w).Encode(user); err != nil {
 				http.Error(w, "Failed to encode user", http.StatusInternalServerError)
-				return User{}, errors.New(err.Error())
+				return User{}, err
 			}
 			return user, nil
 		}
@@ -110,14 +144,14 @@ func getUser(w http.ResponseWriter, r *http.Request) (User, error) {
 	return User{}, errors.New("User not found")
 }
 
-func putUser(w http.ResponseWriter, r *http.Request) {
+func putUser(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 
 	var newUser User
 	// validação de requisição
 	if err := json.NewDecoder(r.Body).Decode(&newUser); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		return
+		return err
 	}
 
 	// adicionando o novo usuário à lista
@@ -133,31 +167,33 @@ func putUser(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewEncoder(w).Encode(newUser); err != nil {
 		http.Error(w, "Failed to encode user", http.StatusInternalServerError)
-		fmt.Println(err)
-		return
+		return err
 	}
+	return nil
 }
 
-func postUser(w http.ResponseWriter, r *http.Request) {
+func postUser(w http.ResponseWriter, r *http.Request) error {
 	var newUser User
 	if err := json.NewDecoder(r.Body).Decode(&newUser); err != nil {
 		http.Error(w, "Failed to encode user", http.StatusBadRequest)
-		fmt.Println(err)
+		return err
 	}
 	ListUser = append(ListUser, newUser)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("User added successfully"))
+	return nil
 }
 
-func deleteUser(w http.ResponseWriter, r *http.Request) {
+func deleteUser(w http.ResponseWriter, r *http.Request) error {
 	idTg, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil {
-		http.Error(w, "Filed to identify user", http.StatusBadRequest)
-		fmt.Println(err)
+		http.Error(w, "Invalid param", http.StatusBadRequest)
+		return err
 	}
 	for i, user := range ListUser {
 		if user.Id == idTg {
 			ListUser = append(ListUser[:i], ListUser[:i+1]...)
 		}
 	}
+	return nil
 }
