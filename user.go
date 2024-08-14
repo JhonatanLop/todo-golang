@@ -76,72 +76,54 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 func handleGetRequest(w http.ResponseWriter, r *http.Request) error {
 	params := r.URL.Query()
 	if params.Has("id") {
-		user, err := getUser(w, r)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return err
-		}
-		if err := json.NewEncoder(w).Encode(user); err != nil {
-			http.Error(w, "Invalid parameter", http.StatusBadRequest)
-			return err
-		}
+		getUser(w, r)
 	} else if params.Has("email") {
-		user, err := getUserByEmail(w, r)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return err
-		}
-		if err := json.NewEncoder(w).Encode(user); err != nil {
-			http.Error(w, "Invalid parameter", http.StatusBadRequest)
-			return err
-		}
+		getUserByEmail(w, r)
 	} else {
 		getAllUsers(w, r)
 	}
 	return nil
 }
 
-func getAllUsers(w http.ResponseWriter, r *http.Request) ([]User, error) {
+func getAllUsers(w http.ResponseWriter, r *http.Request) error {
 	if err := json.NewEncoder(w).Encode(ListUser); err != nil {
-		http.Error(w, "Filed to encode users", http.StatusInternalServerError)
-		return []User{}, errors.New(err.Error())
+		return err
 	}
-	return ListUser, nil
+	return nil
 }
 
-func getUser(w http.ResponseWriter, r *http.Request) (User, error) {
-	idStr := r.URL.Query().Get("id")
-
-	//
-	id, err := strconv.Atoi(idStr)
+func getUser(w http.ResponseWriter, r *http.Request) error {
+	// converte parâmetro pra int
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil {
-		return User{}, err
+		http.Error(w, "Invalid param", http.StatusBadRequest)
+		return err
 	}
 
 	for _, user := range ListUser {
 		if user.Id == id {
 			if err := json.NewEncoder(w).Encode(user); err != nil {
-				return User{}, err
+				http.Error(w, "Failed to encode user", http.StatusInternalServerError)
+				return err
 			}
-			return user, nil
+			return nil
 		}
 	}
-	return User{}, errors.New("User not found")
+	return errors.New("User not found")
 }
 
-func getUserByEmail(w http.ResponseWriter, r *http.Request) (User, error) {
+func getUserByEmail(w http.ResponseWriter, r *http.Request) error {
 	emailTarget := r.URL.Query().Get("email")
 	for _, user := range ListUser {
 		if user.Email == emailTarget {
 			if err := json.NewEncoder(w).Encode(user); err != nil {
 				http.Error(w, "Failed to encode user", http.StatusInternalServerError)
-				return User{}, err
+				return err
 			}
-			return user, nil
 		}
 	}
 	http.Error(w, "User not found", http.StatusNotFound)
-	return User{}, errors.New("User not found")
+	return errors.New("User not found")
 }
 
 func putUser(w http.ResponseWriter, r *http.Request) error {
