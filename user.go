@@ -61,9 +61,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			errors.New(err.Error())
 		}
 	case "PUT":
-		if err := putUser(w, r); err != nil {
-			errors.New(err.Error())
-		}
+		putUser(w, r)
 	case "DELETE":
 		if err := deleteUser(w, r); err != nil {
 			errors.New(err.Error())
@@ -85,31 +83,26 @@ func handleGetRequest(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func getAllUsers(w http.ResponseWriter, r *http.Request) error {
+func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(ListUser); err != nil {
-		return err
+		http.Error(w, "Failed to encode user", http.StatusInternalServerError)
 	}
-	return nil
 }
 
-func getUser(w http.ResponseWriter, r *http.Request) error {
+func getUser(w http.ResponseWriter, r *http.Request) {
 	// converte parâmetro pra int
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil {
 		http.Error(w, "Invalid param", http.StatusBadRequest)
-		return err
 	}
 
 	for _, user := range ListUser {
 		if user.Id == id {
 			if err := json.NewEncoder(w).Encode(user); err != nil {
 				http.Error(w, "Failed to encode user", http.StatusInternalServerError)
-				return err
 			}
-			return nil
 		}
 	}
-	return errors.New("User not found")
 }
 
 func getUserByEmail(w http.ResponseWriter, r *http.Request) error {
@@ -126,14 +119,13 @@ func getUserByEmail(w http.ResponseWriter, r *http.Request) error {
 	return errors.New("User not found")
 }
 
-func putUser(w http.ResponseWriter, r *http.Request) error {
+func putUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var newUser User
 	// validação de requisição
 	if err := json.NewDecoder(r.Body).Decode(&newUser); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		return err
 	}
 
 	// adicionando o novo usuário à lista
@@ -149,9 +141,7 @@ func putUser(w http.ResponseWriter, r *http.Request) error {
 
 	if err := json.NewEncoder(w).Encode(newUser); err != nil {
 		http.Error(w, "Failed to encode user", http.StatusInternalServerError)
-		return err
 	}
-	return nil
 }
 
 func postUser(w http.ResponseWriter, r *http.Request) error {
