@@ -8,6 +8,7 @@ import (
 func StartServer() {
 	// definindo handler
 	http.HandleFunc("/user", UserHandler)
+	http.HandleFunc("/task", TaskHandler)
 
 	// iniciando o servidor
 	if err := http.ListenAndServe(":8080", nil); err != nil {
