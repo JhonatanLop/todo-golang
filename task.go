@@ -39,7 +39,7 @@ func CreateTask(
 	}
 }
 
-func taskHandler(w http.ResponseWriter, r *http.Request) {
+func TaskHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "Application/json")
 	switch r.Method {
 	case "GET":
@@ -90,6 +90,7 @@ func getTaskById(w http.ResponseWriter, r *http.Request) error {
 			if err := json.NewEncoder(w).Encode(task); err != nil {
 				return err
 			}
+			return nil
 		}
 	}
 	w.WriteHeader(http.StatusNotFound)
