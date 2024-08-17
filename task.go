@@ -1,7 +1,8 @@
-package main
+package task
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -13,20 +14,20 @@ type Task struct {
 	Id            int
 	Title         string
 	Description   string
-	DueDate       *time.Time
+	DueDate       time.Time
 	CreateDate    time.Time
-	CompletedDate *time.Time
-	Difficulty    *uint8
+	CompletedDate time.Time
+	Difficulty    uint8
 }
 
 func CreateTask(
 	id int,
 	title string,
 	description string,
-	dueDate *time.Time,
+	dueDate time.Time,
 	createDate time.Time,
-	completedDate *time.Time,
-	difficulty *uint8,
+	completedDate time.Time,
+	difficulty uint8,
 ) Task {
 	return Task{
 		Id:            id,
@@ -103,9 +104,19 @@ func postTask(w http.ResponseWriter, r *http.Request) error {
 	if err := json.NewDecoder(r.Body).Decode(newTask); err != nil {
 		return err
 	}
+	if newTask.Id <= ListTask[len(ListTask)-1].Id {
+		newTask.Id = ListTask[len(ListTask)-1].Id + 1
+		ListTask = append(ListTask, newTask)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Task added sucessfully, but the id was changed because it was invalid"))
+		fmt.Println(newTask)
+		return nil
+	}
+
 	ListTask = append(ListTask, newTask)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Task added successfully"))
+	fmt.Println(newTask)
 	return nil
 }
 
