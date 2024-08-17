@@ -5,64 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 )
-
-var ListTask []Task
-
-type Task struct {
-	Id            int
-	Title         string
-	Description   string
-	DueDate       time.Time
-	CreateDate    time.Time
-	CompletedDate time.Time
-	Difficulty    uint8
-}
-
-func CreateTask(
-	id int,
-	title string,
-	description string,
-	dueDate time.Time,
-	createDate time.Time,
-	completedDate time.Time,
-	difficulty uint8,
-) Task {
-	return Task{
-		Id:            id,
-		Title:         title,
-		Description:   description,
-		DueDate:       dueDate,
-		CreateDate:    createDate,
-		CompletedDate: completedDate,
-		Difficulty:    difficulty,
-	}
-}
-
-func TaskHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "Application/json")
-	switch r.Method {
-	case "GET":
-		if err := taskGetHandler(w, r); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	case "POST":
-		if err := postTask(w, r); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	case "PUT":
-		if err := putTask(w, r); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	case "DELETE":
-		if err := deleteTask(w, r); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-}
 
 func taskGetHandler(w http.ResponseWriter, r *http.Request) error {
 	param := r.URL.Query()
