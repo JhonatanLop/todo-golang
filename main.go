@@ -10,11 +10,11 @@ import (
 )
 
 func main() {
-	StartServer()
 	initSeeds()
+	StartServer()
 }
 
-func StartServer() error {
+func StartServer() {
 	// definindo handler
 	// http.HandleFunc("/user", UserHandler)
 	http.HandleFunc("/task", task.TaskHandler)
@@ -22,9 +22,7 @@ func StartServer() error {
 	// iniciando o servidor
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal("Error starting server: %v", err)
-		return err
 	}
-	return nil
 }
 
 func initSeeds() {
@@ -32,13 +30,12 @@ func initSeeds() {
 	// newUser := CreateUser(1, "Jhow", "jhow@email.com", "senha123")
 	// ListUser = append(ListUser, newUser)
 
-	var mytime time.Time
-	var difficulty uint8
 	// criando uma task
-	newTask := task.CreateTask(1, "Title", "Description", mytime, time.Now(), mytime, difficulty)
-	otherTask := task.CreateTask(2, "Title", "Description", mytime, time.Now(), mytime, difficulty)
-	anotherTask := task.CreateTask(3, "Title", "Description", mytime, time.Now(), mytime, difficulty)
-	newAnotherTask := task.CreateTask(4, "Another title", "My description", mytime, time.Now(), mytime, difficulty)
+	var thisTime = time.Now().String()
+	newTask := task.CreateTask(1, "Title", "Description", thisTime, thisTime, thisTime, 5)
+	otherTask := task.CreateTask(2, "Title", "Description", thisTime, thisTime, thisTime, 5)
+	anotherTask := task.CreateTask(3, "Title", "Description", thisTime, thisTime, thisTime, 5)
+	newAnotherTask := task.CreateTask(4, "Another title", "My description", thisTime, thisTime, thisTime, 5)
 
 	// otherUser := CreateUser(2, "Sebastian", "sebastian@email.com", "senha123")
 	// anotherUser := CreateUser(3, "Kleiton", "kleiton@email.com", "senha123")
@@ -52,5 +49,4 @@ func initSeeds() {
 	// ListUser = append(ListUser, otherUser)
 	// ListUser = append(ListUser, anotherUser)
 	// ListUser = append(ListUser, newAnotherUser)
-
 }
