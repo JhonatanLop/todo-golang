@@ -44,7 +44,7 @@ func getTaskById(w http.ResponseWriter, r *http.Request) error {
 
 func postTask(w http.ResponseWriter, r *http.Request) error {
 	var newTask Task
-	if err := json.NewDecoder(r.Body).Decode(newTask); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&newTask); err != nil {
 		return err
 	}
 	if newTask.Id <= ListTask[len(ListTask)-1].Id {
@@ -63,32 +63,35 @@ func postTask(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func putTask(w http.ResponseWriter, r *http.Request) error {
+func updateTask(w http.ResponseWriter, r *http.Request) {
 	var updatedTask Task
-	if err := json.NewDecoder(r.Body).Decode(updatedTask); err != nil {
-		return err
-	}
-	for _, task := range ListTask {
-		if task.Id == updatedTask.Id {
-			task = updatedTask
-			return nil
-		}
-	}
-	http.Error(w, "Cannot find the task", http.StatusNotFound)
-	return nil
-}
-
-func deleteTask(w http.ResponseWriter, r *http.Request) error {
-	var target Task
-	if err := json.NewDecoder(r.Body).Decode(target); err != nil {
-		return err
+	if err := json.NewDecoder(r.Body).Decode(&updatedTask); err != nil {
+		http.Error(w, "Service error! ::Failed to decode the task", http.StatusBadRequest)
 	}
 	for i, task := range ListTask {
-		if task.Id == target.Id {
-			ListTask = append(ListTask[:i], ListTask[i+1:]...)
-			return nil
+		if task.Id == updatedTask.Id {
+			ListTask[i] = updatedTask
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Task was updated successfully"))
+			return
 		}
 	}
 	http.Error(w, "Cannot find the task", http.StatusNotFound)
-	return nil
+}
+
+func deleteTask(w http.ResponseWriter, r *http.Request) {
+	target, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil {
+		http.Error(w, "Invalid param", http.StatusBadRequest)
+
+	}
+	for i, task := range ListTask {
+		if task.Id == target {
+			ListTask = append(ListTask[:i], ListTask[i+1:]...)
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Task removed successfully"))
+			return
+		}
+	}
+	http.Error(w, "Cannot find the task", http.StatusNotFound)
 }

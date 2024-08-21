@@ -6,21 +6,13 @@ func TaskHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "Application/json")
 	switch r.Method {
 	case "GET":
-		if err := taskGetHandler(w, r); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		taskGetHandler(w, r)
 	case "POST":
-		if err := postTask(w, r); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		postTask(w, r)
 	case "PUT":
-		if err := putTask(w, r); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		updateTask(w, r)
 	case "DELETE":
-		if err := deleteTask(w, r); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		deleteTask(w, r)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
