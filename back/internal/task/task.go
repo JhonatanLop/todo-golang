@@ -1,5 +1,7 @@
 package task
 
+import "time"
+
 var ListTask []Task
 
 type Task struct {
@@ -7,7 +9,7 @@ type Task struct {
 	Title         string
 	Description   string
 	DueDate       string
-	CreateDate    string
+	CreateDate    time.Time
 	CompletedDate string
 	Difficulty    uint8
 }
@@ -17,7 +19,6 @@ func CreateTask(
 	title string,
 	description string,
 	dueDate string,
-	createDate string,
 	completedDate string,
 	difficulty uint8,
 ) Task {
@@ -26,7 +27,7 @@ func CreateTask(
 		Title:         title,
 		Description:   description,
 		DueDate:       dueDate,
-		CreateDate:    createDate,
+		CreateDate:    time.Now(),
 		CompletedDate: completedDate,
 		Difficulty:    difficulty,
 	}

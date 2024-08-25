@@ -6,7 +6,6 @@ import (
 
 	task "github.com/JhonatanLop/todo-golang/internal/task"
 	//  user "github.com/JhonatanLop/todo-golang/internal/user"
-	"time"
 )
 
 func main() {
@@ -31,11 +30,11 @@ func initSeeds() {
 	// ListUser = append(ListUser, newUser)
 
 	// criando uma task
-	var thisTime = time.Now().String()
-	newTask := task.CreateTask(1, "Title", "Description", thisTime, thisTime, thisTime, 5)
-	otherTask := task.CreateTask(2, "Title", "Description", thisTime, thisTime, thisTime, 5)
-	anotherTask := task.CreateTask(3, "Title", "Description", thisTime, thisTime, thisTime, 5)
-	newAnotherTask := task.CreateTask(4, "Another title", "My description", thisTime, thisTime, thisTime, 5)
+	var thisTime string
+	newTask := task.CreateTask(1, "Title", "Description", "2023/01/01", thisTime, 5)
+	otherTask := task.CreateTask(2, "Title", "Description", "2023/02/01", thisTime, 5)
+	anotherTask := task.CreateTask(3, "Title", "Description", "2023/03/01", thisTime, 5)
+	newAnotherTask := task.CreateTask(4, "Another title", "My description", "2023/04/01", thisTime, 5)
 
 	// otherUser := CreateUser(2, "Sebastian", "sebastian@email.com", "senha123")
 	// anotherUser := CreateUser(3, "Kleiton", "kleiton@email.com", "senha123")
