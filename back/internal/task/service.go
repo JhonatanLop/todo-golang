@@ -7,15 +7,6 @@ import (
 	"strconv"
 )
 
-func taskGetHandler(w http.ResponseWriter, r *http.Request) error {
-	param := r.URL.Query()
-	if param.Has("id") {
-		return getTaskById(w, r)
-	} else {
-		return getAllTask(w, r)
-	}
-}
-
 func getAllTask(w http.ResponseWriter, r *http.Request) error {
 	if err := json.NewEncoder(w).Encode(ListTask); err != nil {
 		return err
@@ -39,6 +30,15 @@ func getTaskById(w http.ResponseWriter, r *http.Request) error {
 	}
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("Task not found"))
+	return nil
+}
+
+func getSortedDescTask(w http.ResponseWriter, r *http.Request) error {
+	OrderCloseToExpire()
+	if err := json.NewEncoder(w).Encode(ListTask); err != nil {
+		http.Error(w, "Failed to encode task! problem to sort tasks", http.StatusInternalServerError)
+		return err
+	}
 	return nil
 }
 
